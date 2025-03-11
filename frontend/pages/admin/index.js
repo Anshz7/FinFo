@@ -1,3 +1,3 @@
 export default function Admin() {
-  return <div>hi</div>;
+  return <div>hello testing push</div>;
 }
