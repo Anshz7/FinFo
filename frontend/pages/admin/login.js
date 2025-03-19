@@ -1,9 +1,11 @@
+import React from 'react'
+
 export default function LoginPage() {
     return (
       <div className="h-screen overflow-hidden flex items-center justify-center bg-[#edf2f7]">
         <main className="mx-auto flex min-h-screen w-full items-center justify-center bg-[#23292f] text-white">
           <section className="flex w-[30rem] flex-col space-y-10">
-            <div className="text-center text-4xl font-serif">L O G I N</div>
+            <div className="text-center text-4xl font-serif">F I N F O</div>
             <div className="w-full transform border-b-2 bg-transparent text-lg duration-300 focus-within:border-indigo-500">
               <input
                 type="text"
