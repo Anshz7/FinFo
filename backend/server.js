@@ -1,6 +1,16 @@
 require("dotenv").config();
-const http = require("http");
-const app = require("./index");
+const express = require("express");
+const finfotableRoutes = require("./routes/finfotable");
 
-const server = http.createServer(app);
-server.listen(process.env.PORT);
+const app = express();
+
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// Mount the finfotable routes under /finfotable
+app.use("/finfotable", finfotableRoutes);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
