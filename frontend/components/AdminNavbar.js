@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Menu, X, User, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
-
+//aman//
 const AdminNavbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
