@@ -1,10 +1,10 @@
 // pages/index.js
-import Navbar from '../components/Navbar'
-import HeroSection from '../components/HeroSection'
-import LatestStories from '../components/LatestStories'
-import TechSection from '../components/TechSection'
-import Sidebar from '../components/Sidebar'
-import Footer from '../components/Footer'
+import Navbar from "../components/Navbar";
+import HeroSection from "../components/HeroSection";
+import LatestStories from "../components/LatestStories";
+import TechSection from "../components/TechSection";
+import Sidebar from "../components/Sidebar";
+import Footer from "../components/Footer";
 
 export default function Home() {
   return (
@@ -28,5 +28,5 @@ export default function Home() {
 
       <Footer />
     </div>
-  )
+  );
 }
