@@ -1,92 +1,74 @@
 // components/LatestStories.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import { getFinfotableByCategory } from "@/api.service";
 
 export default function LatestStories() {
-  // Stories data
-  const stories = [
-    {
-      id: 1,
-      date: "Feb 04, 2021",
-      title:
-        "Doctor: New Covid Mutations And Variants Pose Elevated Risks For Black America",
-      image: "test.jpg",
-      url:"/dynamicSlug",
-    },
-    {
-      id: 2,
-      date: "Feb 03, 2021",
-      title:
-        '"Black Caesar": Is The Famous Swashmailer Willie Lynch Speech Fake And A Hoax?',
-      image: "test.jpg",
-      url:"/dynamicSlug",
-    },
-    {
-      id: 3,
-      date: "Feb 02, 2021",
-      title:
-        "Doctor: New Covid Mutations And Variants Pose Elevated Risks For Black America",
-      image: "test.jpg",
-      url:"/dynamicSlug",
-    },
-    {
-      id: 4,
-      date: "Feb 01, 2021",
-      title:
-        '"Black Caesar": Is The Famous Swashmailer Willie Lynch Speech Fake And A Hoax?',
-      image: "test.jpg",
-      url:"/dynamicSlug",
-    },
-    {
-      id: 5,
-      date: "Jan 31, 2021",
-      title:
-        "Doctor: New Covid Mutations And Variants Pose Elevated Risks For Black America",
-      image: "test.jpg",
-      url:"/dynamicSlug",
-    },
-    {
-      id: 6,
-      date: "Jan 30, 2021",
-      title:
-        "Doctor: New Covid Mutations And Variants Pose Elevated Risks For Black America",
-      image: "test.jpg",
-      url:"/dynamicSlug",
-    },
-  ];
+  const [storiesData, setStoriesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const encodedCategory = encodeURIComponent("Economy & Outlook");
+        const response = await getFinfotableByCategory(encodedCategory, 1, 6);
+        
+        if (response?.data) {
+          setStoriesData(response.data);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Format date function
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  if (loading) return <div className="py-8 text-center">Loading stories...</div>;
+  if (error) return <div className="py-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <section className="py-8">
       <h2 className="text-2xl font-bold uppercase mb-6">Latest Stories</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {stories.map((story) => (
-          <div key={story.id} className="space-y-2">
-            {/* Clickable Image */}
-            <a href={story.url} className="block">
-              <img
-                src={story.image}
-                alt={`Story: ${story.title}`}
-                className="w-full object-cover hover:opacity-90 transition-opacity"
-              />
-            </a>
+        {storiesData.map((story) => {
+          const formattedDate = formatDate(story.created_at);
+          
+          return (
+            <div key={story.id} className="space-y-2">
+              <a href={`/article/${story.slug}`} className="block">
+                <img
+                  src={story.banner_link}
+                  alt={story.title}
+                  className="w-full h-48 object-cover hover:opacity-90 transition-opacity"
+                />
+              </a>
 
-            {/* Date */}
-            <p className="text-xs text-gray-500 flex items-center space-x-1">
-              <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-400" />
-              <span>{story.date}</span>
-            </p>
+              <p className="text-xs text-gray-500 flex items-center space-x-1">
+                <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-400" />
+                <span>{formattedDate}</span>
+              </p>
 
-            {/* Clickable Title */}
-            <a
-              href={story.url}
-              className="text-sm font-semibold text-[#23292f] hover:text-[#ca0905] transition-colors block"
-            >
-              {story.title}
-            </a>
-          </div>
-        ))}
+              <a
+                href={`/article/${story.slug}`}
+                className="text-sm font-semibold text-[#23292f] hover:text-[#ca0905] transition-colors block"
+              >
+                {story.title}
+              </a>
+            </div>
+          );
+        })}
       </div>
     </section>
   );

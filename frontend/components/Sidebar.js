@@ -1,5 +1,5 @@
 // components/Sidebar.js
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons'
 import {
@@ -8,58 +8,49 @@ import {
   faInstagram,
   faYoutube,
 } from '@fortawesome/free-brands-svg-icons'
+import { getFinfotableByCategory } from '@/api.service'
 
 export default function Sidebar() {
   const [activeTab, setActiveTab] = useState('markets')
+  const [marketData, setMarketData] = useState([])
+  const [cryptoData, setCryptoData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  // News items data
-  const marketNews = [
-    {
-      id: 1,
-      date: "Feb 03, 2021",
-      title: "How Retail Investors Shape Side Markets",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 2,
-      date: "Feb 02, 2021",
-      title: "Gold And Commodity As A Hedge",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 3,
-      date: "Feb 01, 2021",
-      title: "Silver Squeeze Gains Momentum",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    }
-  ]
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch market news
+        const marketResponse = await getFinfotableByCategory(
+          encodeURIComponent('Economy & Outlook'), 
+          1, 
+          3
+        )
+        
+        // Fetch crypto news
+        const cryptoResponse = await getFinfotableByCategory(
+          encodeURIComponent('Economy & Outlook'), 
+          1, 
+          3
+        )
 
-  const cryptoNews = [
-    {
-      id: 1,
-      date: "Feb 03, 2021",
-      title: "Bitcoin Surpasses $50,000 Milestone",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 2,
-      date: "Feb 02, 2021",
-      title: "Ethereum 2.0 Upgrade Progress",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 3,
-      date: "Feb 01, 2021",
-      title: "NFT Market Continues to Boom",
-      image: "test.jpg",
-      url: "/dynamicSlug"
+        if (marketResponse?.data) setMarketData(marketResponse.data)
+        if (cryptoResponse?.data) setCryptoData(cryptoResponse.data)
+
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
+    
+    fetchData()
+  }, [])
+
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' }
+    return new Date(dateString).toLocaleDateString('en-US', options)
+  }
 
   const socialLinks = [
     { icon: faFacebookF, url: "#" },
@@ -67,6 +58,9 @@ export default function Sidebar() {
     { icon: faInstagram, url: "#" },
     { icon: faYoutube, url: "#" }
   ]
+
+  if (loading) return <div className="text-center p-4">Loading news...</div>
+  if (error) return <div className="text-center text-red-500 p-4">Error: {error}</div>
 
   return (
     <aside className="space-y-8">
@@ -90,33 +84,37 @@ export default function Sidebar() {
 
         {/* News Items */}
         <div className="p-4 border border-gray-200">
-          {(activeTab === 'markets' ? marketNews : cryptoNews).map((news) => (
-            <a
-              key={news.id}
-              href={news.url}
-              className="flex items-center space-x-3 mb-4 group hover:bg-gray-50 p-2 rounded transition-colors"
-            >
-              <img
-                src={news.image}
-                alt={news.title}
-                className="w-16 h-16 object-cover"
-              />
-              <div>
-                <p className="text-xs text-gray-500 flex items-center space-x-1">
-                  <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-400" />
-                  <span>{news.date}</span>
-                </p>
-                <h4 className="text-sm font-semibold text-[#23292f] group-hover:text-[#ca0905] transition-colors">
-                  {news.title}
-                </h4>
-              </div>
-            </a>
-          ))}
+          {(activeTab === 'markets' ? marketData : cryptoData).map((article) => {
+            const formattedDate = formatDate(article.created_at)
+            
+            return (
+              <a
+                key={article.id}
+                href={`/article/${article.slug}`}
+                className="flex items-center space-x-3 mb-4 group hover:bg-gray-50 p-2 rounded transition-colors"
+              >
+                <img
+                  src={article.banner_link}
+                  alt={article.title}
+                  className="w-16 h-16 object-cover"
+                />
+                <div>
+                  <p className="text-xs text-gray-500 flex items-center space-x-1">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-400" />
+                    <span>{formattedDate}</span>
+                  </p>
+                  <h4 className="text-sm font-semibold text-[#23292f] group-hover:text-[#ca0905] transition-colors line-clamp-2">
+                    {article.title}
+                  </h4>
+                </div>
+              </a>
+            )
+          })}
 
           {/* More Link */}
           <div className="mt-4">
             <a
-              href={`/${activeTab}`}
+              href={`/category/${activeTab === 'markets' ? 'Markets' : 'Cryptocurrencies'}`}
               className="text-sm font-semibold text-[#ca0905] hover:underline"
             >
               MORE {activeTab.toUpperCase()} NEWS &gt;&gt;

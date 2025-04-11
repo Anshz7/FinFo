@@ -1,90 +1,112 @@
 // components/HeroSection.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarAlt,
   faChevronRight,
   faMicrophoneAlt,
-  faPlay,
 } from "@fortawesome/free-solid-svg-icons";
+import { getFinfotable, getFinfotableByCategory } from "@/api.service";
 
 export default function HeroSection() {
   const [activeStory, setActiveStory] = useState(0);
+  const [finfoData, setFinfoData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Updated stories with a "url" property for navigation
-  const stories = [
-    {
-      id: 0,
-      date: "Feb 03, 2021",
-      title: "Merck CEO Kenneth Frazier To Retire At The End Of June",
-      description: "A short description or excerpt about the article...",
-      image: "test.jpg",
-      url: "/dynamicSlug",
-    },
-    {
-      id: 1,
-      date: "Feb 02, 2021",
-      title:
-        "Journalist Calls Van Jones: An Opportunist For Praising And Defending MAGA...",
-      description: "Analysis of recent political commentary...",
-      image: "test.jpg",
-      url: "/dynamicSlug",
-    },
-    {
-      id: 2,
-      date: "Feb 01, 2021",
-      title: "Breaking: Major Tech Innovation Unveiled",
-      description: "Revolutionary new technology hits the market...",
-      image: "test.jpg",
-      url: "/dynamicSlug",
-    },
-  ];
+  // Fetch main data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getFinfotable(1, 3,"en");
+        if (response?.data) {
+          setFinfoData(response.data);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-  const podcasts = [
-    {
-      episode: "Episode 71",
-      title: "The Multi-Factor Revelation and the Sneaky Democrats",
-      image: "test.jpg",
-      url: "/dynamicSlug",
-    },
-    {
-      episode: "Episode 72",
-      title: "J. Edgar Hoover and the Rat Psychology Guiding Politics: Part 1",
-      image: "test.jpg",
-      url: "/dynamicSlug",
-    },
-    {
-      episode: "Episode 73",
-      title: "J. Edgar Hoover and the Rat Psychology Guiding Politics: Part 2",
-      image: "test.jpg",
-      url: "/dynamicSlug",
-    },
-    {
-      episode: "Episode 74",
-      title: "Another Episode Title Here",
-      image: "test.jpg",
-      url: "/dynamicSlug",
-    },
-  ];
+  // Fetch category data on component mount
+  useEffect(() => {
+    const fetchCategoryData = async () => {
+      try {
+        const encodedCategory = encodeURIComponent("Economy & Outlook");
+        const response = await getFinfotableByCategory(encodedCategory, 1, 4,"en");
+        if (response?.data) {
+          setCategoryData(response.data);
+        }
+      } catch (err) {
+        console.error("Error fetching category data:", err);
+      } finally {
+        setCategoryLoading(false);
+      }
+    };
+    fetchCategoryData();
+  }, []);
+
+  // Format date function
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  // Transform API data to story format
+  const stories = finfoData.map((article) => ({
+    id: article.id,
+    date: formatDate(article.created_at),
+    title: article.title,
+    description: article.content.split(". ")[0] + ".",
+    image: article.banner_link,
+    url: `/article/${article.slug}`,
+  }));
+
+  // Transform category data to card format
+  const categoryCards = categoryData.map((article) => ({
+    id: article.id,
+    date: formatDate(article.created_at),
+    title: article.title,
+    image: article.banner_link,
+    url: `/article/${article.slug}`,
+  }));
+
+  if (loading || categoryLoading)
+    return <div className="text-center text-white p-8">Loading...</div>;
+  if (error)
+    return <div className="text-center text-red-500 p-8">Error: {error}</div>;
 
   return (
     <section className="bg-[#23292f] text-white pl-40 pr-40">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left (Dynamic Big Image) */}
-          <div className="lg:col-span-2">
-            <a href={stories[activeStory].url}>
-              <img
-                src={stories[activeStory].image}
-                alt="Hero"
-                className="w-full h-full object-cover cursor-pointer"
-              />
-            </a>
+          <div className="lg:col-span-2 h-[500px]">
+            {stories.length > 0 && (
+              <a href={stories[activeStory].url} className="block h-full">
+                <img
+                  src={stories[activeStory].image}
+                  alt="Hero"
+                  className="w-full h-full object-cover cursor-pointer"
+                  style={{
+                    objectFit: "cover",
+                    width: "100%",
+                    height: "100%",
+                    minHeight: "500px",
+                  }}
+                />
+              </a>
+            )}
           </div>
 
           {/* Right (Stories) */}
           <div className="space-y-4">
-            {stories.map((story) => (
+            {stories.map((story, index) => (
               <div
                 key={story.id}
                 className="bg-[#23292f] p-4 border-t border-gray-700"
@@ -94,16 +116,16 @@ export default function HeroSection() {
                   <span>{story.date}</span>
                 </p>
                 <h3
-                  onClick={() => setActiveStory(story.id)}
+                  onClick={() => setActiveStory(index)}
                   className={`cursor-pointer ${
-                    activeStory === story.id
+                    activeStory === index
                       ? "text-[#ca0905] text-lg font-bold"
                       : "text-white text-sm font-semibold"
                   } mb-2`}
                 >
                   {story.title}
                 </h3>
-                {activeStory === story.id && (
+                {activeStory === index && (
                   <div>
                     <p className="text-sm text-gray-300">{story.description}</p>
                     <a
@@ -119,19 +141,18 @@ export default function HeroSection() {
           </div>
         </div>
 
-        {/* Podcast Section */}
+        {/* Category Section */}
         <div className="mt-8">
-          {/* Heading row */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold uppercase flex items-center space-x-2">
               <FontAwesomeIcon
                 icon={faMicrophoneAlt}
                 className="text-[#ca0905]"
               />
-              <span>I Podcast</span>
+              <span>Economy & Outlook</span>
             </h2>
             <a
-              href="#"
+              href="/category/Economy & Outlook"
               className="text-sm font-medium text-[#ca0905] hover:underline flex items-center space-x-1"
             >
               <span>View All</span>
@@ -139,36 +160,32 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* Podcast items (4-column grid on md+) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {podcasts.map((podcast, index) => (
-              <div key={index} className="bg-white text-black p-4">
-                <a
-                  href={podcast.url}
-                  className="block transition duration-300 ease-in-out"
-                >
+            {categoryCards.map((card) => (
+              <div key={card.id} className="bg-white text-black p-4">
+                <a href={card.url} className="block transition duration-300 ease-in-out">
                   <img
-                    src={podcast.image}
-                    alt={`Podcast ${index + 1}`}
-                    className="w-full mb-2 hover:brightness-105"
+                    src={card.image}
+                    alt={card.title}
+                    className="w-full mb-2 hover:brightness-105 object-cover h-48"
                   />
                 </a>
                 <p className="text-xs text-gray-500 mb-1 flex items-center space-x-1">
-                  <FontAwesomeIcon icon={faPlay} className="text-gray-500" />
-                  <span>{podcast.episode}</span>
+                  <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-500" />
+                  <span>{card.date}</span>
                 </p>
                 <a
-                  href={podcast.url}
+                  href={card.url}
                   className="transition duration-300 ease-in-out hover:text-[#ca0905]"
                 >
-                  <h3 className="text-sm font-semibold mb-1">
-                    {podcast.title}
+                  <h3 className="text-sm font-semibold mb-1 line-clamp-2">
+                    {card.title}
                   </h3>
                 </a>
               </div>
             ))}
           </div>
-        </div>  
+        </div>
       </div>
     </section>
   );

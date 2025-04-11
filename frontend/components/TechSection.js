@@ -1,52 +1,40 @@
 // components/TechSection.js
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import { getFinfotableByCategory } from "@/api.service";
 
 export default function TechSection() {
-  // Tech stories data
-  const techStories = [
-    {
-      id: 1,
-      date: "08 Feb 2021",
-      title: "TikTok Is Using Your Phone Number To Track You: How To Turn Off The Data-Stalker Setting",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 2,
-      date: "07 Feb 2021",
-      title: "New AI Algorithm Predicts Stock Market Trends With 90% Accuracy",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 3,
-      date: "06 Feb 2021",
-      title: "Quantum Computing Breakthrough: Major Advancement in Qubit Stability",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 4,
-      date: "05 Feb 2021",
-      title: "Meta's New VR Headset Raises Privacy Concerns Among Users",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 5,
-      date: "04 Feb 2021",
-      title: "Open Source Alternative to ChatGPT Gains Traction Among Developers",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    },
-    {
-      id: 6,
-      date: "03 Feb 2021",
-      title: "New EU Regulations Force Tech Giants to Rethink Data Collection",
-      image: "test.jpg",
-      url: "/dynamicSlug"
-    }
-  ]
+  const [techStories, setTechStories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTechStories = async () => {
+      try {
+        const encodedCategory = encodeURIComponent("Economy & Outlook");
+        const response = await getFinfotableByCategory(encodedCategory, 1, 6);
+
+        if (response?.data) {
+          setTechStories(response.data);
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTechStories();
+  }, []);
+
+  const formatDate = (dateString) => {
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-GB", options);
+  };
+
+  if (loading)
+    return <div className="py-8 text-center">Loading tech stories...</div>;
+  if (error)
+    return <div className="py-8 text-center text-red-500">Error: {error}</div>;
 
   return (
     <section className="py-8">
@@ -58,7 +46,7 @@ export default function TechSection() {
         </div>
 
         <a
-          href="/tech"
+          href="/category/Tech"
           className="text-sm uppercase text-[#ca0905] font-bold hover:underline flex items-center"
         >
           View All +
@@ -67,28 +55,34 @@ export default function TechSection() {
 
       {/* 3x2 Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {techStories.map((story) => (
-          <a 
-            key={story.id} 
-            href={story.url}
-            className="flex items-center space-x-4 group hover:bg-gray-50 p-2 rounded transition-colors"
-          >
-            <img
-              src={story.image}
-              alt={story.title}
-              className="w-32 h-20 object-cover"
-            />
-            <div>
-              <p className="text-[10px] uppercase text-gray-500 mb-1">
-                {story.date}
-              </p>
-              <h3 className="text-sm font-semibold text-[#23292f] leading-tight group-hover:text-[#ca0905] transition-colors">
-                {story.title}
-              </h3>
-            </div>
-          </a>
-        ))}
+        {techStories.map((article) => {
+          const formattedDate = formatDate(article.created_at);
+
+          return (
+            <a
+              key={article.id}
+              href={`/article/${article.slug}`}
+              className="flex items-center space-x-4 group hover:bg-gray-50 p-2 rounded transition-colors"
+            >
+              <div className="w-32 h-20 overflow-hidden flex-shrink-0">
+                <img
+                  src={article.banner_link}
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <p className="text-[10px] uppercase text-gray-500 mb-1">
+                  {formattedDate}
+                </p>
+                <h3 className="text-sm font-semibold text-[#23292f] leading-tight group-hover:text-[#ca0905] transition-colors line-clamp-3">
+                  {article.title}
+                </h3>
+              </div>
+            </a>
+          );
+        })}
       </div>
     </section>
-  )
+  );
 }
