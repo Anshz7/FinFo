@@ -16,6 +16,7 @@ const Dashboard = () => {
   // State for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState(""); // State for dropdown selection
 
   // Function to open modal
   const openModal = (item) => {
@@ -27,6 +28,12 @@ const Dashboard = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     setModalContent({});
+    setSelectedCategory(""); // Reset dropdown selection
+  };
+
+  // Function to handle dropdown change
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
   };
 
   return (
@@ -80,17 +87,42 @@ const Dashboard = () => {
             <h3 className="text-2xl font-bold text-gray-800 mb-2">{modalContent.title}</h3>
             <p className="text-gray-600 mb-6">{modalContent.description}</p>
 
-            {/* Buttons */}
-            <div className="absolute bottom-4 right-4 flex space-x-4">
+            {/* Dropdown and Buttons */}
+            <div className="absolute bottom-4 right-4 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+              {/* Dropdown */}
+              <select
+                value={selectedCategory}
+                onChange={handleCategoryChange}
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled>
+                  Select Category
+                </option>
+                <option value="Economy & Outlook">Economy & Outlook</option>
+                <option value="Stocks">Stocks</option>
+                <option value="Commodities">Commodities</option>
+                <option value="Cryptocurrencies">Cryptocurrencies</option>
+                <option value="Forex">Forex</option>
+              </select>
+
+              {/* Close Button */}
               <button
                 className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
                 onClick={closeModal}
               >
                 Close
               </button>
+
+              {/* Post Button */}
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                onClick={() => alert("Post functionality triggered!")}
+                onClick={() => {
+                  if (selectedCategory) {
+                    alert(`Post functionality triggered for category: ${selectedCategory}`);
+                  } else {
+                    alert("Please select a category before posting!");
+                  }
+                }}
               >
                 Post
               </button>
