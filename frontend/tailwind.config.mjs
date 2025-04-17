@@ -9,9 +9,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        brandRed: "#b91c1c",
+        brandRed: "#ca0905",
       },
     },
   },
-  plugins: [],
+  plugins: [require('@tailwindcss/typography')],
 };

@@ -1,15 +1,12 @@
 // pages/index.js
-import Navbar from "../components/Navbar";
 import HeroSection from "../components/HeroSection";
-import LatestStories from "../components/LatestStories";
-import TechSection from "../components/TechSection";
+import LatestStories from "../components/StocksComponent";
+import TechSection from "../components/CommoditiesComponent";
 import Sidebar from "../components/Sidebar";
-import Footer from "../components/Footer";
 
 export default function Home() {
   return (
     <div className="bg-white text-black">
-      <Navbar />
       <HeroSection />
 
       {/* Main content area */}
@@ -25,8 +22,6 @@ export default function Home() {
           <Sidebar />
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

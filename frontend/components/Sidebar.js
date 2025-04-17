@@ -11,8 +11,8 @@ import {
 import { getFinfotableByCategory } from '@/api.service'
 
 export default function Sidebar() {
-  const [activeTab, setActiveTab] = useState('markets')
-  const [marketData, setMarketData] = useState([])
+  const [activeTab, setActiveTab] = useState('crypto')
+  const [forexData, setForexData] = useState([])
   const [cryptoData, setCryptoData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -20,21 +20,21 @@ export default function Sidebar() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch market news
-        const marketResponse = await getFinfotableByCategory(
-          encodeURIComponent('Economy & Outlook'), 
+        // Fetch forex news
+        const forexResponse = await getFinfotableByCategory(
+          encodeURIComponent('Forex'), 
           1, 
           3
         )
         
         // Fetch crypto news
         const cryptoResponse = await getFinfotableByCategory(
-          encodeURIComponent('Economy & Outlook'), 
+          encodeURIComponent('Cryptocurrencies'), 
           1, 
           3
         )
 
-        if (marketResponse?.data) setMarketData(marketResponse.data)
+        if (forexResponse?.data) setForexData(forexResponse.data)
         if (cryptoResponse?.data) setCryptoData(cryptoResponse.data)
 
       } catch (err) {
@@ -64,10 +64,10 @@ export default function Sidebar() {
 
   return (
     <aside className="space-y-8">
-      {/* Markets / Crypto Tabs */}
+      {/* Forexs / Crypto Tabs */}
       <div>
         <div className="flex">
-          {['markets', 'crypto'].map((tab) => (
+          {['crypto', 'forex'].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -84,7 +84,7 @@ export default function Sidebar() {
 
         {/* News Items */}
         <div className="p-4 border border-gray-200">
-          {(activeTab === 'markets' ? marketData : cryptoData).map((article) => {
+          {(activeTab === 'crypto' ? cryptoData : forexData).map((article) => {
             const formattedDate = formatDate(article.created_at)
             
             return (
@@ -114,7 +114,7 @@ export default function Sidebar() {
           {/* More Link */}
           <div className="mt-4">
             <a
-              href={`/category/${activeTab === 'markets' ? 'Markets' : 'Cryptocurrencies'}`}
+              href={`/category/${activeTab === 'crypto' ? 'cryptocurrencies' : 'forex'}`}
               className="text-sm font-semibold text-[#ca0905] hover:underline"
             >
               MORE {activeTab.toUpperCase()} NEWS &gt;&gt;

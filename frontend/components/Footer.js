@@ -1,12 +1,13 @@
 // components/Footer.js
-import React from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFacebookF,
   faTwitter,
   faInstagram,
   faYoutube,
-} from '@fortawesome/free-brands-svg-icons'
+} from "@fortawesome/free-brands-svg-icons";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -15,9 +16,11 @@ export default function Footer() {
         {/* Top Row: Brand, Nav Links, Subscribe */}
         <div className="flex flex-col lg:flex-row items-center justify-between mb-6">
           {/* Brand (Red Box) */}
-          <div className="bg-[#ca0905] px-4 py-2 text-white font-bold text-xl uppercase tracking-wide">
-            FinFo
-          </div>
+          <Link href="/">
+            <div className="bg-[#ca0905] px-4 py-2 text-white font-bold text-xl uppercase tracking-wide cursor-pointer">
+              FinFo
+            </div>
+          </Link>
 
           {/* Navigation Links */}
           <ul className="flex items-center space-x-6 mt-4 lg:mt-0">
@@ -32,10 +35,12 @@ export default function Footer() {
             </li>
           </ul>
 
-          {/* Subscribe Button */}
-          <button className="border border-white px-4 py-1 text-sm font-medium hover:bg-[#ca0905] hover:border-[#ca0905] transition-colors duration-200 mt-4 lg:mt-0 uppercase">
-            Subscribe
-          </button>
+          {/* Subscribe button */}
+          <Link href="/subscribe">
+            <button className="border border-white px-4 py-1 text-sm font-medium hover:bg-[#ca0905] hover:border-[#ca0905] transition-colors duration-200">
+              SUBSCRIBE
+            </button>
+          </Link>
         </div>
 
         {/* Bottom Row: Copyright & Social */}
@@ -62,5 +67,5 @@ export default function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }
