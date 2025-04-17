@@ -2,18 +2,16 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
 
 export default function Navbar() {
   // Navigation items data
   const navItems = [
-    { name: "Podcast" },
-    { name: "Politics" },
-    { name: "Tech" },
-    { name: "Reparations" },
-    { name: "Markets" },
-    { name: "Gold" },
-    { name: "Crypto" },
-    { name: "More" }
+    { name: "Economy & Outlook", href: "/category/economyOutlook" },
+    { name: "Stocks", href: "/category/stocks" },
+    { name: "Cryptocurrencies", href: "/category/cryptocurrencies" },
+    { name: "Forex", href: "/category/forex" },
+    { name: "Commodities", href: "/category/commodities" },
   ];
 
   return (
@@ -22,18 +20,17 @@ export default function Navbar() {
         {/* Left side: Brand + Nav links */}
         <div className="flex items-center space-x-8">
           {/* Brand in red box */}
-          <div className="bg-[#ca0905] px-4 py-2 text-white font-bold text-xl uppercase tracking-wide">
-            FinFo
-          </div>
+          <Link href="/">
+            <div className="bg-[#ca0905] px-4 py-2 text-white font-bold text-xl uppercase tracking-wide cursor-pointer">
+              FinFo
+            </div>
+          </Link>
 
           {/* Nav links */}
           <ul className="hidden md:flex items-center space-x-6 text-sm font-medium">
             {navItems.map((item, index) => (
-              <li 
-                key={index}
-                className="hover:text-[#ca0905] cursor-pointer"
-              >
-                {item.name}
+              <li key={index} className="hover:text-[#ca0905] cursor-pointer">
+                <Link href={item.href}>{item.name}</Link>
               </li>
             ))}
           </ul>
@@ -47,9 +44,11 @@ export default function Navbar() {
           </button>
 
           {/* Subscribe button */}
-          <button className="border border-white px-4 py-1 text-sm font-medium hover:bg-[#ca0905] hover:border-[#ca0905] transition-colors duration-200">
-            SUBSCRIBE
-          </button>
+          <Link href="/subscribe">
+            <button className="border border-white px-4 py-1 text-sm font-medium hover:bg-[#ca0905] hover:border-[#ca0905] transition-colors duration-200">
+              SUBSCRIBE
+            </button>
+          </Link>
         </div>
       </div>
     </nav>
