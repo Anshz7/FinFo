@@ -29,7 +29,7 @@ export default function Custom404() {
 
       <div className="max-w-md w-full">
         <img
-          src="/404.svg"
+          src="404 Error-rafiki.svg"
           alt="Not Found Illustration"
           className="w-full h-auto object-contain"
         />

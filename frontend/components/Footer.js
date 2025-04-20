@@ -51,36 +51,16 @@ export default function Footer() {
 
           {/* Social Icons */}
           <div className="flex space-x-4 mt-2 lg:mt-0 text-xl">
-            <a
-              href="https://www.facebook.com/people/Finfo-Guruji/pfbid02vU2ArM6veMaMPzqLyjVFYFwNCx5AmVcn8VBJz9JFsySkccgKJiGCKZ3e2DSdVKEhl/"
-              aria-label="Facebook"
-              className="hover:text-[#ca0905]"
-              target="_blank"
-            >
+            <a href="#" aria-label="Facebook" className="hover:text-[#ca0905]">
               <FontAwesomeIcon icon={faFacebookF} />
             </a>
-            <a
-              href="https://x.com/finfoguruji"
-              aria-label="Twitter"
-              className="hover:text-[#ca0905]"
-              target="_blank"
-            >
+            <a href="#" aria-label="Twitter" className="hover:text-[#ca0905]">
               <FontAwesomeIcon icon={faTwitter} />
             </a>
-            <a
-              href="https://www.instagram.com/finfo_guru/"
-              aria-label="Instagram"
-              className="hover:text-[#ca0905]"
-              target="_blank"
-            >
+            <a href="#" aria-label="Instagram" className="hover:text-[#ca0905]">
               <FontAwesomeIcon icon={faInstagram} />
             </a>
-            <a
-              href="https://www.youtube.com/@finfo-Guruji"
-              aria-label="YouTube"
-              className="hover:text-[#ca0905]"
-              target="_blank"
-            >
+            <a href="#" aria-label="YouTube" className="hover:text-[#ca0905]">
               <FontAwesomeIcon icon={faYoutube} />
             </a>
           </div>
