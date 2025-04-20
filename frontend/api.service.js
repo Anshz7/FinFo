@@ -1,5 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-const API_URL = process.env.PHP_SERVER; 
+const API_URL = process.env.PHP_SERVER;
 
 // Get FlipItNews Flips
 export const getPhpFlips = async (pageNo = 0) => {
@@ -131,5 +131,64 @@ export const getFinfotableBySlug = async (slug, lang = "en") => {
   } catch (error) {
     console.error(`Error fetching article with slug ${slug}:`, error);
     return null;
+  }
+};
+
+// Updated confirmSubscription in api.service.js
+export const confirmSubscription = async (token) => {
+  try {
+    const url = new URL(
+      `${BASE_URL}/subscribers/confirm/${encodeURIComponent(token)}`
+    );
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      mode: "cors",
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.reason || "confirmation_failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Confirmation error:", error);
+    throw error; // Throw the actual error for better debugging
+  }
+};
+
+// Ensure your unsubscribeUser function is properly handling responses
+export const unsubscribeUser = async (email) => {
+  try {
+    // const response = await fetch(`/subscribers/${email}`, {
+    //   method: 'DELETE',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    const url = new URL(`${BASE_URL}/subscribers/${encodeURIComponent(email)}`);
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+      },
+      mode: "cors",
+    });
+
+    // const data = await response.json();
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(data.reason || data.message || "Unsubscribe failed");
+    }
+
+    // return data;
+    return await response.json();
+  } catch (error) {
+    throw new Error(error.message || "Failed to unsubscribe");
   }
 };
