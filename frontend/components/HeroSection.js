@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarAlt,
   faChevronRight,
-  faMicrophoneAlt,
+  faCoins,
 } from "@fortawesome/free-solid-svg-icons";
 import { getFinfotable, getFinfotableByCategory } from "@/api.service";
 
@@ -20,7 +20,7 @@ export default function HeroSection() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await getFinfotable(1, 3,"en");
+        const response = await getFinfotable(1, 3, "en");
         if (response?.data) {
           setFinfoData(response.data);
         }
@@ -38,7 +38,12 @@ export default function HeroSection() {
     const fetchCategoryData = async () => {
       try {
         const encodedCategory = encodeURIComponent("Economy & Outlook");
-        const response = await getFinfotableByCategory(encodedCategory, 1, 4,"en");
+        const response = await getFinfotableByCategory(
+          encodedCategory,
+          1,
+          4,
+          "en"
+        );
         if (response?.data) {
           setCategoryData(response.data);
         }
@@ -75,11 +80,6 @@ export default function HeroSection() {
     image: article.banner_link,
     url: `/article/${article.slug}`,
   }));
-
-  if (loading || categoryLoading)
-    return <div className="text-center text-white p-8">Loading...</div>;
-  if (error)
-    return <div className="text-center text-red-500 p-8">Error: {error}</div>;
 
   return (
     <section className="bg-[#23292f] text-white pl-40 pr-40">
@@ -146,13 +146,13 @@ export default function HeroSection() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold uppercase flex items-center space-x-2">
               <FontAwesomeIcon
-                icon={faMicrophoneAlt}
+                icon={faCoins}
                 className="text-[#ca0905]"
               />
               <span>Economy & Outlook</span>
             </h2>
             <a
-              href="/category/Economy & Outlook"
+              href="/category/economyOutlook"
               className="text-sm font-medium text-[#ca0905] hover:underline flex items-center space-x-1"
             >
               <span>View All</span>
@@ -163,7 +163,10 @@ export default function HeroSection() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {categoryCards.map((card) => (
               <div key={card.id} className="bg-white text-black p-4">
-                <a href={card.url} className="block transition duration-300 ease-in-out">
+                <a
+                  href={card.url}
+                  className="block transition duration-300 ease-in-out"
+                >
                   <img
                     src={card.image}
                     alt={card.title}
@@ -171,7 +174,10 @@ export default function HeroSection() {
                   />
                 </a>
                 <p className="text-xs text-gray-500 mb-1 flex items-center space-x-1">
-                  <FontAwesomeIcon icon={faCalendarAlt} className="text-gray-500" />
+                  <FontAwesomeIcon
+                    icon={faCalendarAlt}
+                    className="text-gray-500"
+                  />
                   <span>{card.date}</span>
                 </p>
                 <a

@@ -1,10 +1,10 @@
-// components/LatestStories.js
+// components/StockComponents.js
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import { getFinfotableByCategory } from "@/api.service";
 
-export default function LatestStories() {
+export default function StockComponents() {
   const [storiesData, setStoriesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,7 +13,7 @@ export default function LatestStories() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const encodedCategory = encodeURIComponent("Economy & Outlook");
+        const encodedCategory = encodeURIComponent("Stocks");
         const response = await getFinfotableByCategory(encodedCategory, 1, 6);
         
         if (response?.data) {
@@ -34,12 +34,9 @@ export default function LatestStories() {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  if (loading) return <div className="py-8 text-center">Loading stories...</div>;
-  if (error) return <div className="py-8 text-center text-red-500">Error: {error}</div>;
-
   return (
     <section className="py-8">
-      <h2 className="text-2xl font-bold uppercase mb-6">Latest Stories</h2>
+      <h2 className="text-2xl font-bold uppercase mb-6">Latest Stocks News</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {storiesData.map((story) => {

@@ -10,7 +10,7 @@ export default function TechSection() {
   useEffect(() => {
     const fetchTechStories = async () => {
       try {
-        const encodedCategory = encodeURIComponent("Economy & Outlook");
+        const encodedCategory = encodeURIComponent("Commodities");
         const response = await getFinfotableByCategory(encodedCategory, 1, 6);
 
         if (response?.data) {
@@ -42,11 +42,11 @@ export default function TechSection() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
           <div className="bg-[#ca0905] w-1 h-4"></div>
-          <h2 className="text-xl font-bold uppercase text-[#23292f]">Tech</h2>
+          <h2 className="text-xl font-bold uppercase text-[#23292f]">Commodities</h2>
         </div>
 
         <a
-          href="/category/Tech"
+          href="/category/commodities"
           className="text-sm uppercase text-[#ca0905] font-bold hover:underline flex items-center"
         >
           View All +

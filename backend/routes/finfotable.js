@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../connection");
 const axios = require("axios");
+const nodemailer = require("nodemailer");
 
 // Azure Translator configuration
 async function azureTranslate(texts, targetLang) {
@@ -28,10 +29,68 @@ async function azureTranslate(texts, targetLang) {
 
     return response.data.map((t) => t.translations[0].text);
   } catch (error) {
-    console.error("Azure Translate Error:", error.response?.data || error.message);
-    throw new Error("Translation failed: " + (error.response?.data?.error?.message || error.message));
+    console.error(
+      "Azure Translate Error:",
+      error.response?.data || error.message
+    );
+    throw new Error(
+      "Translation failed: " +
+        (error.response?.data?.error?.message || error.message)
+    );
   }
 }
+
+const transporter = nodemailer.createTransport({
+  service: "gmail", // You can use this instead of host/port
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+// Email sending helper function
+async function sendNewsEmail(email, newsData) {
+  const mailOptions = {
+    from: `"FinFo News" <${process.env.EMAIL_FROM}`,
+    to: email,
+    subject: `New Article: ${newsData.title}`,
+    headers: {
+      'X-Priority': '1',
+      'X-MSMail-Priority': 'High',
+      'Importance': 'High'
+    },
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #ca0905;">${newsData.title}</h2>
+        ${
+          newsData.banner_link
+            ? `<img src="${newsData.banner_link}" alt="Article banner" style="max-width: 100%; margin: 15px 0;">`
+            : ""
+        }
+        <p>${newsData.content.substring(0, 150)}...</p>
+        <p><strong>Category:</strong> ${newsData.category}</p>
+        <a href="${process.env.FRONTEND_URL}/article/${newsData.slug}" 
+           style="display: inline-block; padding: 10px 20px; background-color: #ca0905; color: white; text-decoration: none; border-radius: 5px; margin: 15px 0;">
+          Read Full Article
+        </a>
+        <hr style="border: 1px solid #ddd;">
+        <p style="font-size: 0.9em; color: #666;">
+          You received this email because you subscribed to our news service.<br>
+          <a href="${process.env.FRONTEND_URL}/unsubscribe/${email}" 
+             style="color: #ca0905; text-decoration: none;">Unsubscribe</a>
+        </p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${email}`);
+  } catch (error) {
+    console.error(`Failed to send email to ${email}:`, error);
+  }
+}
+
 /**
  * Table structure:
  * CREATE TABLE finfotable (
@@ -47,12 +106,19 @@ async function azureTranslate(texts, targetLang) {
  * );
  */
 
-// CREATE: Add a new record with translations
 router.post("/", async (req, res) => {
   const { title, slug, content, category, source_link, banner_link } = req.body;
   const targetLanguages = [
-    "hi", "ta", "mr", "te", "kn", 
-    "gu", "pa", "bn", "ml", "ur"
+    "hi",
+    "ta",
+    "mr",
+    "te",
+    "kn",
+    "gu",
+    "pa",
+    "bn",
+    "ml",
+    "ur",
   ];
 
   try {
@@ -92,8 +158,29 @@ router.post("/", async (req, res) => {
       })
     );
 
-    // Filter out failed translations
-    const successfulInserts = insertResults.filter(result => result !== null);
+    try {
+      const [subscribers] = await pool.query(
+        "SELECT email FROM subscribers WHERE subscribed = TRUE"
+      );
+
+      const newsData = {
+        title,
+        content,
+        category,
+        slug,
+        source_link,
+        banner_link,
+      };
+
+      // Send emails in parallel (non-blocking)
+      await Promise.allSettled(
+        subscribers.map((sub) => sendNewsEmail(sub.email, newsData))
+      );
+
+      console.log(`Notifications sent to ${subscribers.length} subscribers`);
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+    }
 
     res.status(201).json([
       {
@@ -106,12 +193,12 @@ router.post("/", async (req, res) => {
         banner_link,
         lang: "en",
       },
-      ...successfulInserts,
+      ...insertResults,
     ]);
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       error: error.message,
-      details: error.response?.data || {}
+      details: error.response?.data || {},
     });
   }
 });

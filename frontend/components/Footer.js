@@ -1,12 +1,13 @@
 // components/Footer.js
-import React from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFacebookF,
   faTwitter,
   faInstagram,
   faYoutube,
-} from '@fortawesome/free-brands-svg-icons'
+} from "@fortawesome/free-brands-svg-icons";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -15,9 +16,11 @@ export default function Footer() {
         {/* Top Row: Brand, Nav Links, Subscribe */}
         <div className="flex flex-col lg:flex-row items-center justify-between mb-6">
           {/* Brand (Red Box) */}
-          <div className="bg-[#ca0905] px-4 py-2 text-white font-bold text-xl uppercase tracking-wide">
-            FinFo
-          </div>
+          <Link href="/">
+            <div className="bg-[#ca0905] px-4 py-2 text-white font-bold text-xl uppercase tracking-wide cursor-pointer">
+              FinFo
+            </div>
+          </Link>
 
           {/* Navigation Links */}
           <ul className="flex items-center space-x-6 mt-4 lg:mt-0">
@@ -32,10 +35,12 @@ export default function Footer() {
             </li>
           </ul>
 
-          {/* Subscribe Button */}
-          <button className="border border-white px-4 py-1 text-sm font-medium hover:bg-[#ca0905] hover:border-[#ca0905] transition-colors duration-200 mt-4 lg:mt-0 uppercase">
-            Subscribe
-          </button>
+          {/* Subscribe button */}
+          <Link href="/subscribe">
+            <button className="border border-white px-4 py-1 text-sm font-medium hover:bg-[#ca0905] hover:border-[#ca0905] transition-colors duration-200">
+              SUBSCRIBE
+            </button>
+          </Link>
         </div>
 
         {/* Bottom Row: Copyright & Social */}
@@ -46,21 +51,41 @@ export default function Footer() {
 
           {/* Social Icons */}
           <div className="flex space-x-4 mt-2 lg:mt-0 text-xl">
-            <a href="#" aria-label="Facebook" className="hover:text-[#ca0905]">
+            <a
+              href="https://www.facebook.com/people/Finfo-Guruji/pfbid02vU2ArM6veMaMPzqLyjVFYFwNCx5AmVcn8VBJz9JFsySkccgKJiGCKZ3e2DSdVKEhl/"
+              aria-label="Facebook"
+              className="hover:text-[#ca0905]"
+              target="_blank"
+            >
               <FontAwesomeIcon icon={faFacebookF} />
             </a>
-            <a href="#" aria-label="Twitter" className="hover:text-[#ca0905]">
+            <a
+              href="https://x.com/finfoguruji"
+              aria-label="Twitter"
+              className="hover:text-[#ca0905]"
+              target="_blank"
+            >
               <FontAwesomeIcon icon={faTwitter} />
             </a>
-            <a href="#" aria-label="Instagram" className="hover:text-[#ca0905]">
+            <a
+              href="https://www.instagram.com/finfo_guru/"
+              aria-label="Instagram"
+              className="hover:text-[#ca0905]"
+              target="_blank"
+            >
               <FontAwesomeIcon icon={faInstagram} />
             </a>
-            <a href="#" aria-label="YouTube" className="hover:text-[#ca0905]">
+            <a
+              href="https://www.youtube.com/@finfo-Guruji"
+              aria-label="YouTube"
+              className="hover:text-[#ca0905]"
+              target="_blank"
+            >
               <FontAwesomeIcon icon={faYoutube} />
             </a>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }
