@@ -1,25 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AdminSidebar from "@/components/AdminSidebar";
-import AdminNavbar from "@/components/AdminNavbar";
 import { useRouter } from "next/router";
+import { getFinfotable } from "@/api.service"; // Import the getFinfotable function
 
 const Dashboard = () => {
   const router = useRouter(); // For navigation
 
-  // Dummy data for multiple cards
-  const data = [
-    { title: "Sales Report", image: "/test.jpg", description: "Detailed sales report for the month." },
-    { title: "User Analytics", image: "/test.jpg", description: "Analytics of user behavior and trends." },
-    { title: "Revenue", image: "/test.jpg", description: "Revenue generated in the last quarter." },
-    { title: "Support Tickets", image: "/test.jpg", description: "Overview of support tickets." },
-    { title: "Marketing Campaigns", image: "/test.jpg", description: "Performance of marketing campaigns." },
-    { title: "Performance", image: "/test.jpg", description: "System performance metrics." },
-  ];
+  // State for data
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
 
   // State for modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(""); // State for dropdown selection
+
+  // Function to fetch data using getFinfotable
+  const fetchData = async () => {
+    try {
+      setIsLoading(true); // Start loading
+      const result = await getFinfotable(1, 10, "en"); // Fetch the first page with 10 records in English
+      if (result && result.data) {
+        setData(result.data); // Update state with fetched data
+      } else {
+        setError("Failed to fetch data.");
+      }
+    } catch (err) {
+      setError(err.message); // Handle errors
+    } finally {
+      setIsLoading(false); // Stop loading
+    }
+  };
+
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   // Function to open modal
   const openModal = (item) => {
@@ -41,9 +58,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Navbar */}
-      <AdminNavbar />
-
       <div className="flex">
         {/* Sidebar */}
         <AdminSidebar
@@ -52,29 +66,39 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <div className="flex-1 md:ml-64 p-6 pt-20">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Dashboard Overview</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Post Board</h2>
+
+          {/* Loading and Error States */}
+          {isLoading && <p>Loading...</p>}
+          {error && <p className="text-red-500">Error: {error}</p>}
 
           {/* Grid Layout (3 grids per row) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {data.map((item, index) => (
-              <div
-                key={index}
-                className="h-64 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer"
-                onClick={() => openModal(item)}
-              >
-                {/* Upper Part - Image Section */}
-                <div className="h-2/3 bg-white flex justify-center items-center">
-                  <img src={item.image} alt={item.title} className="w-full object-cover" />
-                </div>
+          {!isLoading && !error && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+{data.map((item, index) => (
+  <div
+    key={index}
+    className="h-64 bg-white rounded-lg shadow-md overflow-hidden cursor-pointer"
+    onClick={() => openModal(item)}
+  >
+    {/* Upper Part - Image Section */}
+    <div className="h-40 bg-white flex justify-center items-center">
+      <img
+        src={item.banner_link}
+        alt={item.title}
+        className="h-full w-full object-cover"
+      />
+    </div>
 
-                {/* Lower Part - Text Section */}
-                <div className="h-1/3 bg-gray-200 flex flex-col justify-center items-center p-4">
-                  <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+    {/* Lower Part - Text Section */}
+    <div className="h-24 bg-gray-200 flex flex-col justify-center items-center p-4">
+      <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
+      {/* <p className="text-sm text-gray-600">{item.content}</p> */}
+    </div>
+  </div>
+))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -88,9 +112,9 @@ const Dashboard = () => {
             >
               &times;
             </button>
-            <img src={modalContent.image} alt={modalContent.title} className="w-full h-64 object-cover rounded-md mb-4" />
+            <img src={modalContent.banner_link} alt={modalContent.title} className="w-full h-64 object-cover rounded-md mb-4" />
             <h3 className="text-2xl font-bold text-gray-800 mb-2">{modalContent.title}</h3>
-            <p className="text-gray-600 mb-6">{modalContent.description}</p>
+            <p className="text-gray-600 mb-6">{modalContent.content}</p>
 
             {/* Dropdown and Buttons */}
             <div className="absolute bottom-4 right-4 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
