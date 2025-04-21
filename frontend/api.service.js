@@ -1,18 +1,20 @@
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-const API_URL = process.env.PHP_SERVER;
+const API_URL = process.env.NEXT_PUBLIC_PHP_SERVER; 
 
 // Get FlipItNews Flips
 export const getPhpFlips = async (pageNo = 0) => {
   try {
-    const url = new URL(`${API_URL}/api/news/flips`);
+    console.log("API_URL:", API_URL);
+    const url = new URL(`${API_URL}api/news/flips`);
     url.searchParams.append("pageNo", pageNo);
-
+    console.log(url.toString());
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "X-Requested-With": "XMLHttpRequest",
       },
     });
+    console.log("Response:", response);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -130,6 +132,40 @@ export const getFinfotableBySlug = async (slug, lang = "en") => {
     return data;
   } catch (error) {
     console.error(`Error fetching article with slug ${slug}:`, error);
+    return null;
+  }
+};
+
+//update record by id
+export const updateRecordById = async (id, updatedFields) => {
+  try {
+    // Remove undefined or invalid fields
+    const sanitizedFields = Object.fromEntries(
+      Object.entries(updatedFields).filter(([_, value]) => value !== undefined)
+    );
+
+    console.log("Sanitized Fields:", sanitizedFields);
+
+    const url = `${BASE_URL}/finfotable/${id}`; // Replace `BASE_URL` with your API base URL
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(sanitizedFields), // Send only sanitized fields
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Response: ${errorText}`
+      );
+    }
+
+    return await response.json(); // Return the updated record
+  } catch (error) {
+    console.error("Error updating record:", error);
     return null;
   }
 };
