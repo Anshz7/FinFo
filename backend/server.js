@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors"); // Import CORS middleware
 const finfotableRoutes = require("./routes/finfotable");
 const subscribersRoutes = require("./routes/subscribers");
+const adminRoutes = require("./routes/admin");
+const contactRoutes = require("./routes/contact");
 
 const app = express();
 
@@ -11,6 +13,12 @@ app.use(cors());
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Mount the contact routes under /contact
+app.use("/contact", contactRoutes);
+
+// Mount the admin routes under /admin
+app.use("/admin", adminRoutes);
 
 // Mount the finfotable routes under /finfotable
 app.use("/finfotable", finfotableRoutes);

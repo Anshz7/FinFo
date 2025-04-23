@@ -25,13 +25,13 @@ export default function Footer() {
           {/* Navigation Links */}
           <ul className="flex items-center space-x-6 mt-4 lg:mt-0">
             <li className="text-sm hover:text-[#ca0905] cursor-pointer uppercase">
-              About
+              <a href="/contact" target="_blank">About</a>
             </li>
             <li className="text-sm hover:text-[#ca0905] cursor-pointer uppercase">
-              Contact
+              <a href="/contact" target="_blank">Contact</a>
             </li>
             <li className="text-sm hover:text-[#ca0905] cursor-pointer uppercase">
-              Privacy Policy
+              <a href="/contact" target="_blank">Privacy Policy</a>
             </li>
           </ul>
 

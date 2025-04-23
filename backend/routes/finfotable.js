@@ -55,9 +55,9 @@ async function sendNewsEmail(email, newsData) {
     to: email,
     subject: `New Article: ${newsData.title}`,
     headers: {
-      'X-Priority': '1',
-      'X-MSMail-Priority': 'High',
-      'Importance': 'High'
+      "X-Priority": "1",
+      "X-MSMail-Priority": "High",
+      Importance: "High",
     },
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

@@ -1,20 +1,15 @@
 // pages/_app.js
-
 import "../styles/globals.css";
-
-// 1. Import the Font Awesome core
 import { config } from "@fortawesome/fontawesome-svg-core";
-// 2. Import the Font Awesome CSS
 import "@fortawesome/fontawesome-svg-core/styles.css";
-// 3. Tell Font Awesome to skip adding the CSS automatically
 config.autoAddCss = false;
 
-// Import your layout components
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import GlobalLoader from "@/components/GlobalLoader";
 import GlobalError from "@/components/GlobalError";
 import { useEffect, useState } from "react";
+import { AuthProvider } from "../context/auth";
 
 function MyApp({ Component, pageProps }) {
   const [hasError, setHasError] = useState(false);
@@ -24,7 +19,9 @@ function MyApp({ Component, pageProps }) {
     const handleError = (event) => {
       console.error("Global Error:", event?.error || event?.reason);
       setHasError(true);
-      setErrorMessage(event?.reason?.message || "An unexpected error occurred.");
+      setErrorMessage(
+        event?.reason?.message || "An unexpected error occurred."
+      );
     };
 
     window.addEventListener("error", handleError);
@@ -37,7 +34,7 @@ function MyApp({ Component, pageProps }) {
   }, []);
 
   return (
-    <>
+    <AuthProvider>
       <GlobalLoader />
       {hasError ? (
         <GlobalError message={errorMessage} />
@@ -50,7 +47,7 @@ function MyApp({ Component, pageProps }) {
           <Footer />
         </div>
       )}
-    </>
+    </AuthProvider>
   );
 }
 

@@ -39,9 +39,9 @@ export default function Navbar() {
         {/* Right side: Search icon + Subscribe button */}
         <div className="flex items-center space-x-4">
           {/* Search icon using Font Awesome */}
-          <button className="hidden md:block">
+          {/* <button className="hidden md:block">
             <FontAwesomeIcon icon={faSearch} className="text-white text-lg" />
-          </button>
+          </button> */}
 
           {/* Subscribe button */}
           <Link href="/subscribe">
