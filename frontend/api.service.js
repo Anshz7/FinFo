@@ -451,3 +451,51 @@ export const deleteContactMessage = async (id) => {
     throw error;
   }
 };
+
+/**
+ * Search finfotable by title or content
+ *
+ * @param {string} query   The search term (will be wrapped in %…% on the server)
+ * @param {string} lang    Optional language filter (e.g. "en", "es")
+ * @returns {Promise<import('./types').FinfotableRecord[]>}
+ */
+export const searchFinfotable = async (query, lang = "en") => {
+  try {
+    if (!query) {
+      throw new Error("Missing required parameter: query");
+    }
+
+    // Construct URL: BASE_URL should be like http://localhost:8080
+    const url = new URL(`${BASE_URL}/finfotable/search`);
+    url.searchParams.append("q", query);
+    if (lang) {
+      url.searchParams.append("lang", lang);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    });
+
+    // If nothing found, our backend returns 404
+    if (response.status === 404) {
+      return [];
+    }
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(
+        `Search API error! Status: ${response.status}, Response: ${text}`
+      );
+    }
+
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in searchFinfotable:", error);
+    return null;
+  }
+};

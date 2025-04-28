@@ -257,6 +257,38 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+// SEARCH: Search articles by title or content with optional language
+router.get("/search", async (req, res) => {
+  const { q, lang } = req.query;
+
+  if (!q) {
+    return res.status(400).json({ error: "Missing search query parameter 'q'" });
+  }
+
+  try {
+    const searchTerm = `%${q}%`;
+    let sql = "SELECT * FROM finfotable WHERE (title LIKE ? OR content LIKE ?)";
+    const values = [searchTerm, searchTerm];
+
+    if (lang) {
+      sql += " AND lang = ?";
+      values.push(lang);
+    }
+
+    const [results] = await pool.query(sql, values);
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Record not found" });
+    }
+
+    res.status(200).json({ data: results });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 // READ: Get all records by category with pagination and optional lang filter
 router.get("/category/:category", async (req, res) => {
   const { category } = req.params;
