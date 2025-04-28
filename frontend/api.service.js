@@ -1,5 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-const API_URL = process.env.NEXT_PUBLIC_PHP_SERVER; 
+const API_URL = process.env.NEXT_PUBLIC_PHP_SERVER;
 
 // Get FlipItNews Flips
 export const getPhpFlips = async (pageNo = 0) => {
@@ -170,26 +170,52 @@ export const updateRecordById = async (id, updatedFields) => {
   }
 };
 
+// Create a new record (with automatic translations and notifications)
+export const createFinfotableRecord = async (recordData) => {
+  try {
+    const url = `${BASE_URL}/finfotable`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(recordData),
+      mode: "cors",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Response: ${errorText}`
+      );
+    }
+
+    // Returns an array: first item is the original, followed by translated entries
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating finfotable record:", error);
+    return null;
+  }
+};
+
 // Subscribe new email
 export const subscribe = async (email) => {
   try {
     const response = await fetch(`${BASE_URL}/subscribers`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ email }),
     });
 
     const data = await response.json();
-    
+
     if (!response.ok) {
-      throw new Error(data.error || 'Subscription failed');
+      throw new Error(data.error || "Subscription failed");
     }
 
     return data;
   } catch (error) {
-    console.error('Subscription error:', error);
+    console.error("Subscription error:", error);
     throw error;
   }
 };
@@ -241,5 +267,235 @@ export const unsubscribeUser = async (email) => {
     return await response.json();
   } catch (error) {
     throw new Error(error.message || "Failed to unsubscribe");
+  }
+};
+
+// Admin Login
+export const adminLogin = async (username, password) => {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Login failed");
+
+    localStorage.setItem("adminToken", data.token);
+    return data;
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
+};
+
+// api.service.js - Update adminLogout
+export const adminLogout = async () => {
+  try {
+    const token = localStorage.getItem("adminToken");
+    if (!token) throw new Error("No active session");
+
+    const response = await fetch(`${BASE_URL}/admin/logout`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Logout failed");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Logout error:", error);
+    throw new Error(error.message || "Failed to logout");
+  }
+};
+
+export const getAdminProfile = async (token) => {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Failed to fetch profile");
+
+    return data.admin;
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+    throw error;
+  }
+};
+
+// Contact Form API Handlers
+export const submitContactMessage = async (formData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/contact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      console.error("Server response:", responseText);
+      let errorMessage = "Message submission failed";
+      try {
+        const errorData = JSON.parse(responseText);
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        errorMessage = `${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
+    }
+
+    return JSON.parse(responseText);
+  } catch (error) {
+    console.error("Full error details:", error);
+    throw error;
+  }
+};
+
+export const getContactMessages = async (page = 1, pageSize = 10) => {
+  try {
+    const url = new URL(`${BASE_URL}/contact`);
+    url.searchParams.append("page", page);
+    url.searchParams.append("pageSize", pageSize);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Response: ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+
+    // Transform backend fields to match frontend expectations
+    return {
+      messages: data.messages.map((msg) => ({
+        _id: msg.id.toString(),
+        id: msg.id,
+        name: msg.name,
+        email: msg.email,
+        subject: msg.subject,
+        message: msg.message,
+        category: msg.category,
+        status: msg.status,
+        createdAt: msg.created_at,
+      })),
+      totalPages: data.totalPages,
+    };
+  } catch (error) {
+    console.error("Error fetching contact messages:", error);
+    throw error;
+  }
+};
+
+export const updateMessageStatus = async (id, status) => {
+  try {
+    const response = await fetch(`${BASE_URL}/contact/${id}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Status update failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating message status:", error);
+    throw error;
+  }
+};
+
+export const deleteContactMessage = async (id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/contact/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `HTTP error! Status: ${response.status}, Response: ${errorText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error deleting message:", error);
+    throw error;
+  }
+};
+
+/**
+ * Search finfotable by title or content
+ *
+ * @param {string} query   The search term (will be wrapped in %…% on the server)
+ * @param {string} lang    Optional language filter (e.g. "en", "es")
+ * @returns {Promise<import('./types').FinfotableRecord[]>}
+ */
+export const searchFinfotable = async (query, lang = "en") => {
+  try {
+    if (!query) {
+      throw new Error("Missing required parameter: query");
+    }
+
+    // Construct URL: BASE_URL should be like http://localhost:8080
+    const url = new URL(`${BASE_URL}/finfotable/search`);
+    url.searchParams.append("q", query);
+    if (lang) {
+      url.searchParams.append("lang", lang);
+    }
+
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "cors",
+    });
+
+    // If nothing found, our backend returns 404
+    if (response.status === 404) {
+      return [];
+    }
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(
+        `Search API error! Status: ${response.status}, Response: ${text}`
+      );
+    }
+
+    const { data } = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error in searchFinfotable:", error);
+    return null;
   }
 };
